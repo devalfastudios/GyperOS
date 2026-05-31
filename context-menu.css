@@ -1,0 +1,50 @@
+/* Стили для контекстного меню ПКМ */
+.context-menu {
+    position: fixed;
+    z-index: 10000;
+    background: rgba(22, 22, 34, 0.85); /* Чуть плотнее фон */
+    backdrop-filter: blur(15px) saturate(1.5);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 12px;
+    padding: 6px;
+    width: 200px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+    color: white;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.cm-item {
+    padding: 10px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Отступ между иконкой и текстом */
+    transition: background 0.2s, transform 0.1s;
+}
+
+.cm-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.cm-item:active {
+    transform: scale(0.98);
+}
+
+.cm-divider {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.1);
+    margin: 5px 8px;
+}
+
+/* Класс для скрытия меню */
+.hidden {
+    display: none !important;
+}
+
+/* Стили для иконок внутри меню (если будешь добавлять 📁 ⚙️) */
+.cm-item span {
+    display: flex;
+    align-items: center;
+}

@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>GyperOS v3</title>
+    <link rel="stylesheet" href="gyper_style.css">
+    <link rel="stylesheet" href="context-menu.css">
+</head>
+<body oncontextmenu="return false;">
+
+<div id="watermark">Активація Gyper OS<br>Перейдіть в Налаштування, щоб активувати систему.</div>
+
+<div id="off-screen">
+    <button class="power-btn-large" onclick="sys.boot()">
+        <svg viewBox="0 0 24 24" style="width:40px;height:40px;fill:currentColor"><path d="M13 3h-2v10h2V3zm4.83 2.17l-1.42 1.42C17.99 7.86 19 9.81 19 12c0 3.87-3.13 7-7 7s-7-3.13-7-7c0-2.19 1.01-4.14 2.58-5.42L6.17 5.17C4.23 6.82 3 9.26 3 12c0 4.97 4.03 9 9 9s9-4.03 9-9c0-2.74-1.23-5.18-3.17-6.83z"/></svg>
+    </button>
+    <p style="margin-top:20px;color:#555;font-size:14px;">Торкніться для запуску</p>
+</div>
+
+<div id="boot-screen">
+    <h1 style="font-size:48px;letter-spacing:5px;font-weight:100;">GYPER OS</h1>
+    <div class="loader" id="boot-spinner"></div>
+    <div class="loader-bar" id="boot-bar"><div></div></div>
+    <div style="position:absolute;bottom:50px;font-size:14px;color:#555;">ALFA Studio</div>
+</div>
+
+<div id="lock-screen">
+    <div class="avatar-lock">👤</div>
+    <div id="lock-time-disp" class="lock-time-big">00:00</div>
+    <div id="lock-date-disp" class="lock-date-sub">—</div>
+    <h2 id="lock-name" style="margin-bottom:12px;font-size:18px;font-weight:400;">Користувач</h2>
+    <input type="password" id="lock-pass" class="lock-input hidden" placeholder="Пароль">
+    <button class="btn-glass" onclick="sys.login()" style="margin-top:8px;">Увійти</button>
+    <div class="lock-power-row">
+        <button class="lock-pw-btn rst" title="Перезавантажити" onclick="sys.restart()">
+            <svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:white"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6 0 2.97-2.17 5.43-5 5.91v2.02c3.95-.49 7-3.85 7-7.93 0-4.42-3.58-8-8-8z"/></svg>
+        </button>
+        <button class="lock-pw-btn off" title="Вимкнути" onclick="sys.shutdown()">
+            <svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:white"><path d="M13 3h-2v10h2V3zm4.83 2.17l-1.42 1.42C17.99 7.86 19 9.81 19 12c0 3.87-3.13 7-7 7s-7-3.13-7-7c0-2.19 1.01-4.14 2.58-5.42L6.17 5.17C4.23 6.82 3 9.26 3 12c0 4.97 4.03 9 9 9s9-4.03 9-9c0-2.74-1.23-5.18-3.17-6.83z"/></svg>
+        </button>
+    </div>
+</div>
+
+<div id="login-msg">
+    <div class="login-msg-icon">👋</div>
+    <div class="login-msg-text" id="login-msg-text">Ласкаво просимо!</div>
+    <div class="login-msg-sub">GyperOS — система готова</div>
+</div>
+
+<div id="vol-overlay" class="overlay-bar">
+    <svg class="icon-md" viewBox="0 0 24 24" fill="white"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
+    <div style="width:140px;height:4px;background:#555;border-radius:2px;"><div id="vol-bar-vis" style="width:50%;height:100%;background:var(--accent);transition:width 0.1s;"></div></div>
+    <span id="vol-text">50%</span>
+</div>
+<div id="bright-overlay" class="overlay-bar">
+    <svg class="icon-md" viewBox="0 0 24 24" fill="white"><path d="M20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69zM12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6z"/></svg>
+    <div style="width:140px;height:4px;background:#555;border-radius:2px;"><div id="bright-bar-vis" style="width:100%;height:100%;background:var(--accent);transition:width 0.1s;"></div></div>
+    <span id="bright-text">100%</span>
+</div>
+
+<div id="desktop">
+    <div class="desktop-icons-area" id="desktop-icons"></div>
+    <div id="windows-area"></div>
+
+    <!-- Side App Menu -->
+    <div id="side-menu">
+        <div class="sm-header">
+            <div class="sm-title">Додатки</div>
+            <button class="sm-close" onclick="sys.closeSideMenu()">✕</button>
+        </div>
+        <input type="text" class="sm-search" placeholder="🔍 Пошук..." id="sm-search-input" oninput="sys.filterSideMenu(this.value)">
+        <div class="sm-list" id="sm-app-list"></div>
+    </div>
+    <div id="sm-backdrop" style="position:absolute;inset:0;bottom:var(--taskbar-h);z-index:4997;display:none;" onclick="sys.closeSideMenu()"></div>
+
+    <!-- Quick Settings (3x2) -->
+    <div id="quick-settings">
+        <div class="qs-grid">
+            <div class="qs-tile active" id="qs-wifi" onclick="sys.toggleSet('wifi')">
+                <svg class="icon-md" viewBox="0 0 24 24" fill="currentColor"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+                <span>Wi-Fi</span>
+            </div>
+            <div class="qs-tile" id="qs-bt" onclick="sys.toggleSet('bt')">
+                <svg class="icon-md" viewBox="0 0 24 24" fill="currentColor"><path d="M17.71 7.71L12 2h-1v7.59L6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 11 14.41V22h1l5.71-5.71-4.3-4.29 4.3-4.29z"/></svg>
+                <span>Bluetooth</span>
+            </div>
+            <div class="qs-tile" id="qs-dnd" onclick="sys.toggleSet('dnd')">
+                <svg class="icon-md" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm4-9H8v2h8v-2z"/></svg>
+                <span>Не турбувати</span>
+            </div>
+            <div class="qs-tile" id="qs-plane" onclick="sys.toggleSet('plane')">
+                <svg class="icon-md" viewBox="0 0 24 24" fill="currentColor"><path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></svg>
+                <span>Режим польоту</span>
+            </div>
+            <div class="qs-tile" id="qs-night" onclick="sys.toggleSet('night')">
+                <svg class="icon-md" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"/></svg>
+                <span>Нічний режим</span>
+            </div>
+            <div class="qs-tile" onclick="sys.openApp('settings')">
+                <svg class="icon-md" viewBox="0 0 24 24" fill="currentColor"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L3.16 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.04.24.24.41.48.41h3.84c.24 0 .43-.17.47-.41l.36-2.54c.59-.24 1.13-.57 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58z"/></svg>
+                <span>Налаштування</span>
+            </div>
+        </div>
+        <div style="padding:6px 0;display:flex;flex-direction:column;gap:10px;">
+            <div class="qs-slider-row">
+                <svg class="icon" viewBox="0 0 24 24" fill="white"><path d="M20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69z"/></svg>
+                <input type="range" class="qs-slider" min="1" max="100" value="100" oninput="sys.setBrightness(this.value);sys.saveSettings()">
+            </div>
+            <div class="qs-slider-row">
+                <svg class="icon" viewBox="0 0 24 24" fill="white"><path d="M3 9v6h4l5 5V4L7 9H3z"/></svg>
+                <input type="range" class="qs-slider" id="vol-slider" min="0" max="100" value="50" oninput="sys.setVol(this.value);sys.saveSettings()">
+            </div>
+        </div>
+        <div style="display:flex;justify-content:space-between;border-top:1px solid var(--glass-border);padding-top:10px;align-items:center;">
+            <div style="font-size:12px;display:flex;align-items:center;gap:6px;cursor:pointer;" onclick="sys.toggleLang()">
+                <svg class="icon" viewBox="0 0 24 24" fill="white"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm6.93 6h-2.95c-.32-1.25-.78-2.45-1.38-3.56 1.84.63 3.37 1.91 4.33 3.56zM12 4.04c.83 1.2 1.48 2.53 1.91 3.96h-3.82c.43-1.43 1.08-2.76 1.91-3.96zM4.26 14C4.1 13.36 4 12.69 4 12s.1-1.36.26-2h3.38c-.08.66-.14 1.32-.14 2s.06 1.34.14 2H4.26zm.82 2h2.95c.32 1.25.78 2.45 1.38 3.56-1.84-.63-3.37-1.9-4.33-3.56zm2.95-8H5.08c.96-1.66 2.49-2.93 4.33-3.56C8.81 5.55 8.35 6.75 8.03 8zM12 19.96c-.83-1.2-1.48-2.53-1.91-3.96h3.82c-.43 1.43-1.08 2.76-1.91 3.96zM14.34 14H9.66c-.09-.66-.16-1.32-.16-2s.07-1.35.16-2h4.68c.09.65.16 1.32.16 2s-.07 1.34-.16 2zm.25 5.56c.6-1.11 1.06-2.31 1.38-3.56h2.95c-.96 1.65-2.49 2.93-4.33 3.56zM16.36 14c.08-.66.14-1.32.14-2s-.06-1.34-.14-2h3.38c.16.64.26 1.31.26 2s-.1 1.36-.26 2h-3.38z"/></svg>
+                <span id="qs-lang">UKR</span>
+            </div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.5);">🔋 81%</div>
+            <div style="display:flex;gap:6px;">
+                <button class="btn-glass" style="padding:7px;" title="Блокувати" onclick="sys.lock()">
+                    <svg class="icon" viewBox="0 0 24 24" fill="white"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2z"/></svg>
+                </button>
+                <button class="btn-glass" style="padding:7px;" title="Живлення" onclick="sys.showPowerMenu()">
+                    <svg class="icon" viewBox="0 0 24 24" fill="white"><path d="M13 3h-2v10h2V3zm4.83 2.17l-1.42 1.42C17.99 7.86 19 9.81 19 12c0 3.87-3.13 7-7 7s-7-3.13-7-7c0-2.19 1.01-4.14 2.58-5.42L6.17 5.17C4.23 6.82 3 9.26 3 12c0 4.97 4.03 9 9 9s9-4.03 9-9c0-2.74-1.23-5.18-3.17-6.83z"/></svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="notif-center"></div>
+    <div id="notif-panel">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+            <h3>Сповіщення</h3>
+            <button class="btn-glass" style="padding:5px;" onclick="sys.clearNotifs()">Очистити</button>
+        </div>
+        <div class="notif-history" id="notif-history"></div>
+    </div>
+
+    <div id="taskbar">
+        <div class="tb-left">
+            <button class="tb-start-btn" onclick="sys.toggleSideMenu()" title="Меню">
+                <svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:white"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+            </button>
+        </div>
+        <div class="tb-center" id="task-apps"></div>
+        <div class="tb-right">
+            <div class="tb-tray-icons" onclick="sys.toggleNotifPanel()">
+                <svg class="icon" viewBox="0 0 24 24" fill="white"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+            </div>
+            <div class="tb-tray-icons" id="qs-btn" onclick="sys.toggleQS()">
+                <svg class="icon" viewBox="0 0 24 24" fill="white"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+                <svg class="icon" viewBox="0 0 24 24" fill="white"><path d="M3 9v6h4l5 5V4L7 9H3z"/></svg>
+            </div>
+            <div class="tb-clock-area" onclick="sys.toggleNotifPanel()">
+                <div id="tb-time">00:00</div>
+                <div id="tb-date">—</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="desktop-cm" class="context-menu hidden">
+        <div class="cm-item" onclick="createNewFolder()">
+            <span>📁 Створити папку</span>
+        </div>
+        <div class="cm-divider"></div>
+        <div class="cm-item">
+            <span>⚙️ Персоналізація</span>
+        </div>
+    </div>
+
+    <script src="context-menu.js"></script>
+</body>
+</div>
+
+<!-- Power Menu Overlay -->
+<div id="power-menu-overlay">
+    <div class="power-dialog">
+        <h3>⚡ Живлення</h3>
+        <p>Виберіть дію</p>
+        <div class="power-btns">
+            <button class="power-action-btn off" onclick="sys.shutdown();sys.hidePowerMenu()">
+                <span class="pab-icon">⏻</span>Вимкнути
+            </button>
+            <button class="power-action-btn rst" onclick="sys.restart();sys.hidePowerMenu()">
+                <span class="pab-icon">↻</span>Перезавантажити
+            </button>
+            <button class="power-action-btn slp" onclick="sys.doSleep();sys.hidePowerMenu()">
+                <span class="pab-icon">💤</span>Сон
+            </button>
+            <button class="power-action-btn" onclick="sys.hidePowerMenu()">
+                <span class="pab-icon">✕</span>Скасувати
+            </button>
+        </div>
+    </div>
+</div>
+
+
+<script src="gyper_script.js"></script>
+</body>
+</html>
